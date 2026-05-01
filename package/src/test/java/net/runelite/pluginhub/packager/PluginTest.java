@@ -223,7 +223,7 @@ public class PluginTest
 			"commit=0000000000000000000000000000000000000000");
 
 		Assert.assertEquals(0, new ProcessBuilder(
-			new File("./create_new_plugin.py").getAbsolutePath(),
+			System.getProperty("pluginhub.test.createNewPlugin"),
 			"--noninteractive",
 			"--output_directory", p.repositoryDirectory.getAbsolutePath(),
 			"--name", "Test Example",

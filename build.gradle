@@ -49,14 +49,3 @@ subprojects {
 		with tasks.jar
 	}
 }
-
-// we have this task then java -jar the output rather than using gradle run so
-// the daemon used to build this can be reused by a real plugin build
-task prep {
-	dependsOn ":package:shadowJar"
-	dependsOn ":apirecorder:shadowJar"
-	doLast {
-		file("build").mkdirs()
-		file("build/gradleHome").write(gradle.gradleHomeDir.absolutePath)
-	}
-}

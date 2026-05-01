@@ -1,0 +1,28 @@
+plugins {
+	id "base"
+}
+
+repositories {
+	maven {
+		url = "https://repo.runelite.net"
+	}
+	mavenCentral()
+	gradlePluginPortal()
+}
+
+configurations {
+	core
+}
+
+dependencies {
+	core group: "net.runelite", name: "client", version: file("../../runelite.version").text.trim()
+	core "org.projectlombok:lombok:1.18.30"
+	core "org.jetbrains:annotations:23.0.0"
+}
+
+task verifyCore {
+	doLast {
+		// This causes resolution (and therefore verification) of the configuration
+		configurations.core.asPath
+	}
+}

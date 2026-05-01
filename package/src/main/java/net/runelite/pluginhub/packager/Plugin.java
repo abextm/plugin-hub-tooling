@@ -118,7 +118,6 @@ public class Plugin implements Closeable
 	private static final String SUFFIX_ICON = ".png";
 
 	private static final File TMP_ROOT;
-	private static final File GRADLE_HOME;
 
 	static final API CURRENT_API;
 	private static final Map<String, String> DISALLOWED_APIS;
@@ -132,13 +131,7 @@ public class Plugin implements Closeable
 			TMP_ROOT = Files.createTempDirectory("pluginhub-package").toFile();
 			TMP_ROOT.deleteOnExit();
 
-			GRADLE_HOME = new File(com.google.common.io.Files.asCharSource(new File(Packager.PACKAGE_ROOT, "build/gradleHome"), StandardCharsets.UTF_8).read().trim());
-			if (!GRADLE_HOME.exists())
-			{
-				throw new RuntimeException("gradle home has moved");
-			}
-
-			CURRENT_API = calculateAPI();
+			CURRENT_API = loadAPI();
 			try (InputStream is = Packager.class.getResourceAsStream("disallowed-apis.txt"))
 			{
 				DISALLOWED_APIS = CURRENT_API.parseCommented(is, false);
@@ -293,19 +286,10 @@ public class Plugin implements Closeable
 	}
 
 	@SneakyThrows
-	private static API calculateAPI() throws IOException
+	private static API loadAPI() throws IOException
 	{
-		Process gradleApi = new ProcessBuilder(new File(Packager.PACKAGE_ROOT, "gradlew").getAbsolutePath(), "--console=plain", ":apirecorder:api")
-			.directory(Packager.PACKAGE_ROOT)
-			.inheritIO()
-			.start();
-		gradleApi.waitFor(2, TimeUnit.MINUTES);
-		if (gradleApi.exitValue() != 0)
-		{
-			throw new RuntimeException("gradle :apirecorder:api exited with " + gradleApi.exitValue());
-		}
-
-		try (InputStream is = new FileInputStream(new File(Packager.PACKAGE_ROOT, "apirecorder/build/api")))
+		var apiRoot = new File(Util.RUNTIME, "/api/");
+		try (InputStream is = new FileInputStream(new File(apiRoot, Util.readRLVersion() + ".api")))
 		{
 			return API.decode(is);
 		}
@@ -545,7 +529,7 @@ public class Plugin implements Closeable
 			}
 		}
 
-		try (InputStream is = Plugin.class.getResourceAsStream("verification-metadata.xml"))
+		try (InputStream is = new FileInputStream(new File(Util.PLUGIN_HUB_REPO, "package/verification-template/gradle/verification-metadata.xml")))
 		{
 			File metadataFile = new File(repositoryDirectory, "gradle/verification-metadata.xml");
 			metadataFile.getParentFile().mkdir();
@@ -554,7 +538,7 @@ public class Plugin implements Closeable
 
 		try (ProjectConnection con = GradleConnector.newConnector()
 			.forProjectDirectory(repositoryDirectory)
-			.useInstallation(GRADLE_HOME)
+			.useInstallation(Packager.GRADLE_HOME)
 			.connect())
 		{
 			CancellationTokenSource cancel = GradleConnector.newCancellationTokenSource();
@@ -565,9 +549,9 @@ public class Plugin implements Closeable
 				.withArguments(
 					"--no-build-cache",
 					"--console=plain",
-					"--init-script", new File("./package/target_init.gradle").getAbsolutePath())
+					"--init-script", new File(Util.RUNTIME, "target_init.gradle").getAbsolutePath())
 				.setEnvironmentVariables(ImmutableMap.of(
-					"runelite.pluginhub.package.apirecorder", new File(Packager.PACKAGE_ROOT, "apirecorder/build/libs/apirecorder.jar").toString(),
+					"runelite.pluginhub.package.apirecorder", new File(Util.RUNTIME, "apirecorder.jar").toString(),
 					"runelite.pluginhub.package.buildDir", buildDirectory.getAbsolutePath(),
 					"runelite.pluginhub.package.runeliteVersion", runeliteVersion))
 				.setJvmArguments("-Xmx768M", "-XX:+UseParallelGC")

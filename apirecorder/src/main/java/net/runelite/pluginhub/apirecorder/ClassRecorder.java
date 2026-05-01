@@ -117,6 +117,7 @@ public class ClassRecorder extends ClassVisitor
 			fi = args.next();
 			cr.recordClass(new File(fi));
 		}
+		out.getParentFile().mkdir();
 		try (OutputStream os = new FileOutputStream(out))
 		{
 			cr.getApi().encode(os);

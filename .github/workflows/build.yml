@@ -1,0 +1,54 @@
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: adopt
+          java-version: 11
+          cache: gradle
+
+      - run: ./gradlew build :bundle:tar --no-daemon
+      - run: zstd --compress -19 bundle/build/distributions/bundle.tar
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: bundle.tar.zst
+          path: bundle/build/distributions/bundle.tar.zst
+          if-no-files-found: error
+          archive: false
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            bundle/build/distributions/bundle.tar.zst \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --latest
+      - name: Nightly Release
+        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete nightly --cleanup-tag --yes
+          gh release create nightly \
+            --target "${GITHUB_REF_NAME}" \
+            bundle/build/distributions/bundle.tar.zst \
+            --title nightly \
+            --latest=false \
+            --prerelease

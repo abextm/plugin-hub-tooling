@@ -67,8 +67,8 @@ import org.slf4j.helpers.MessageFormatter;
 @Slf4j
 public class Packager implements Closeable
 {
-	private static final File PLUGIN_ROOT = new File("./plugins");
-	public static final File PACKAGE_ROOT = new File("./package/").getAbsoluteFile();
+	private static final File PLUGIN_ROOT = new File(Util.PLUGIN_HUB_REPO, "plugins");
+	public static final File GRADLE_HOME = new File(Util.RUNTIME, "gradle");
 	private static final File ARTIFACT_DIR = new File("/tmp/jars");
 
 	private Semaphore apiCheckSemaphore = new Semaphore(8);
@@ -428,6 +428,7 @@ public class Packager implements Closeable
 		else if (!Strings.isNullOrEmpty(range))
 		{
 			Process gitdiff = new ProcessBuilder("git", "diff", "--name-only", range)
+				.directory(Util.PLUGIN_HUB_REPO)
 				.redirectError(ProcessBuilder.Redirect.INHERIT)
 				.start();
 
@@ -444,9 +445,9 @@ public class Packager implements Closeable
 					}
 					else if (line.startsWith("plugins/"))
 					{
-						buildList.add(new File(line));
+						buildList.add(new File(Util.PLUGIN_HUB_REPO, line));
 					}
-					else if (line.startsWith("package/") || line.startsWith("templateplugin/") || line.startsWith("create_new_plugin.py"))
+					else if (line.startsWith("package/"))
 					{
 						doPackageTests = true;
 					}
@@ -455,13 +456,8 @@ public class Packager implements Closeable
 
 			if (doPackageTests)
 			{
-				testFailure |= new ProcessBuilder(new File(PACKAGE_ROOT, "gradlew").getAbsolutePath(), "--console=plain", "test")
-					.directory(PACKAGE_ROOT)
-					.inheritIO()
-					.start()
-					.waitFor() != 0;
-				testFailure |= new ProcessBuilder(new File(PACKAGE_ROOT, "gradlew").getAbsolutePath(), "--console=plain", ":verifyAll")
-					.directory(new File(PACKAGE_ROOT, "verification-template"))
+				testFailure |= new ProcessBuilder(new File(GRADLE_HOME, "bin/gradle").getAbsolutePath(), "--console=plain", ":verifyAll")
+					.directory(new File(Util.PLUGIN_HUB_REPO, "package/verification-template"))
 					.inheritIO()
 					.start()
 					.waitFor() != 0;
@@ -488,6 +484,7 @@ public class Packager implements Closeable
 		{
 			String commit = range.substring(0, range.indexOf(".."));
 			Process gitShow = new ProcessBuilder("git", "show", commit + ":runelite.version")
+				.directory(Util.PLUGIN_HUB_REPO)
 				.redirectError(ProcessBuilder.Redirect.INHERIT)
 				.start();
 

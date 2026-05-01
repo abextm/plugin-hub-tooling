@@ -29,17 +29,6 @@ repositories {
 	mavenCentral()
 }
 
-configurations {
-	runelite {
-		resolutionStrategy {
-			// we don't run any code from this configuration
-			disableDependencyVerification()
-		}
-	}
-}
-
-def runeLiteVersion = file("../../runelite.version").text.trim()
-
 dependencies {
 	implementation "org.slf4j:slf4j-simple:1.7.10"
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
@@ -52,21 +41,9 @@ dependencies {
 	annotationProcessor lombok
 	testCompileOnly lombok
 	testAnnotationProcessor lombok
-
-	runelite group: 'net.runelite', name: 'client', version: runeLiteVersion
-	runelite group: 'net.runelite', name: 'jshell', version: runeLiteVersion
-	runelite lombok
 }
 
 compileJava.options.compilerArgs += [
 	"--add-exports", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
 	"--add-exports", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
 ]
-
-def apiFilePath = new File(project.buildDir, "api")
-
-task api(type: JavaExec) {
-	classpath = sourceSets.main.runtimeClasspath
-	mainClass = "net.runelite.pluginhub.apirecorder.ClassRecorder"
-	args = [apiFilePath] + configurations.runelite.files
-}

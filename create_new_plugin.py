@@ -174,8 +174,6 @@ mappings = {}
 for key, var in subs.items():
 	mappings[key] = strfun(var["value"])
 mappings["package_path"] = mappings["package"].replace(".", os.path.sep)
-with open(os.path.join(templatedir, "../runelite.version"), "rt") as fi:
-	mappings["runelite_version"] = fi.read().strip()
 
 for root, dir, files in os.walk(templatedir):
 	for file in files:

@@ -42,12 +42,6 @@ dependencies {
 	testImplementation "com.squareup.okhttp3:mockwebserver:3.14.9"
 }
 
-task run(type: JavaExec) {
-	mainClass = "net.runelite.pluginhub.uploader.Uploader"
-	classpath = sourceSets.main.runtimeClasspath
-	workingDir = new File(project.rootDir, "../")
-}
-
 test {
 	workingDir new File(project.rootDir, "../")
 }

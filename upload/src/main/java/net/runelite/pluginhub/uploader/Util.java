@@ -33,6 +33,8 @@ import okhttp3.Response;
 
 public class Util
 {
+	public static final File RUNTIME = new File(".").getAbsoluteFile();
+	public static final File PLUGIN_HUB_REPO = new File(RUNTIME, "plugin-hub");
 	public static final Gson GSON = new Gson();
 
 	private Util()
@@ -49,6 +51,6 @@ public class Util
 
 	public static String readRLVersion() throws IOException
 	{
-		return Files.asCharSource(new File("./runelite.version"), StandardCharsets.UTF_8).read().trim();
+		return Files.asCharSource(new File(PLUGIN_HUB_REPO, "runelite.version"), StandardCharsets.UTF_8).read().trim();
 	}
 }
