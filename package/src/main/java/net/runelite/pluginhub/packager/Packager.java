@@ -193,6 +193,12 @@ public class Packager implements Closeable
 		{
 			try
 			{
+				if (!PLUGIN_ROOT.equals(p.getPluginCommitDescriptor().getParentFile()))
+				{
+					throw PluginBuildException.of(p, "Plugin cannot be in a subdirectory")
+						.withFile(p.getPluginCommitDescriptor());
+				}
+
 				PluginHubManifest.JarData oldJarData = this.oldJarData.get(p.getInternalName());
 				if (isIncrementalRebuild && oldJarData != null)
 				{

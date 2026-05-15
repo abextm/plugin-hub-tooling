@@ -143,6 +143,7 @@ public class Plugin implements Closeable
 		}
 	}
 
+	@Getter
 	private final File pluginCommitDescriptor;
 
 	@Getter
