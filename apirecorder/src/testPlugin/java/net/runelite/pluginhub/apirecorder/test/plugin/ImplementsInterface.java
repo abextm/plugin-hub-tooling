@@ -7,6 +7,7 @@ public class ImplementsInterface implements CoreInterfaceChild
 	@Override
 	public void baseMethod()
 	{
+		CoreInterfaceChild.super.baseMethod();
 	}
 
 	@Override

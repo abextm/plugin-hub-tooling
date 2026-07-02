@@ -117,8 +117,12 @@ class RecordingTreeScanner extends TreePathScanner<Void, Void>
 	@Override
 	public Void visitMemberSelect(MemberSelectTree node, Void unused)
 	{
-		TypeMirror receiver = trees.getTypeMirror(new TreePath(getCurrentPath(), node.getExpression()));
-		recordElement(trees.getElement(getCurrentPath()), receiver);
+		// if we are super-ing then the receiver is already recorded
+		if (!node.getIdentifier().contentEquals("super"))
+		{
+			TypeMirror receiver = trees.getTypeMirror(new TreePath(getCurrentPath(), node.getExpression()));
+			recordElement(trees.getElement(getCurrentPath()), receiver);
+		}
 		return super.visitMemberSelect(node, unused);
 	}
 
