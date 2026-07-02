@@ -46,12 +46,22 @@ public class RecorderPlugin implements Plugin
 	@Override
 	public void init(JavacTask task, String... args)
 	{
-		String buildDir = System.getenv("runelite.pluginhub.package.buildDir");
-		if (Strings.isNullOrEmpty(buildDir))
+		String buildDir;
+		if (args.length == 1)
 		{
-			return;
+			buildDir = args[0];
+		}
+		else
+		{
+			buildDir = System.getenv("runelite.pluginhub.package.buildDir");
+			if (Strings.isNullOrEmpty(buildDir))
+			{
+				return;
+			}
 		}
 
+		File apiFile = new File(buildDir, "api");
+		apiFile.delete();
 		RecordingTreeScanner scanner = new RecordingTreeScanner(task);
 
 		task.addTaskListener(new TaskListener()
@@ -79,7 +89,7 @@ public class RecorderPlugin implements Plugin
 					case COMPILATION:
 						if (!scanner.isPartial())
 						{
-							try (FileOutputStream fos = new FileOutputStream(new File(buildDir, "api")))
+							try (FileOutputStream fos = new FileOutputStream(apiFile))
 							{
 								scanner.getApi().encode(fos);
 							}
