@@ -199,7 +199,7 @@ public class PluginTest
 			return new Plugin(f)
 			{
 				@Override
-				protected void realPluginChecks()
+				protected void realPluginChecks(boolean realPluginChecks)
 				{
 				}
 			};

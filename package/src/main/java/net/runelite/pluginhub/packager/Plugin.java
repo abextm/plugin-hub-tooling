@@ -951,11 +951,11 @@ public class Plugin implements Closeable
 				.withFile(propFile);
 		}
 
-		realPluginChecks();
+		realPluginChecks(disallowedIsFatal);
 	}
 
 	// Tests don't run this as the example plugin will fail these on purpose
-	protected void realPluginChecks() throws IOException, PluginBuildException
+	protected void realPluginChecks(boolean disallowedIsFatal) throws IOException, PluginBuildException
 	{
 		{
 			Process gitlog = new ProcessBuilder("git", "log", "--follow", "--format=%ct", "--", pluginCommitDescriptor.getAbsolutePath())
@@ -981,11 +981,9 @@ public class Plugin implements Closeable
 
 		if (!new File(repositoryDirectory, "LICENSE").exists())
 		{
-			if (displayData.getLastUpdatedAt() < 1604534400)
-			{
-				writeLog("Missing LICENSE file. This will become fatal in the future\n");
-			}
-			else
+			writeLog("Missing LICENSE file\n");
+
+			if (disallowedIsFatal)
 			{
 				throw PluginBuildException.of(this, "Missing LICENSE file")
 					.withHelp("All plugins must be licensed under a license that allows us to freely distribute the plugin jar standalone.\n" +
