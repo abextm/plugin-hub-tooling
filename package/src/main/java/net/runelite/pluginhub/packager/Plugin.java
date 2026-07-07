@@ -466,7 +466,7 @@ public class Plugin implements Closeable
 				zos.closeEntry();
 			}
 
-			extras.sort(Comparator.comparing(Entry::getLength).thenComparing(Entry::getZipPath));
+			/*extras.sort(Comparator.comparing(Entry::getLength).thenComparing(Entry::getZipPath));
 			for (Entry e : extras)
 			{
 				if (cos.getCount() + e.length > MAX_SRC_SIZE_MIB * MIB)
@@ -479,7 +479,7 @@ public class Plugin implements Closeable
 				zos.putNextEntry(ze);
 				Files.copy(e.path, zos);
 				zos.closeEntry();
-			}
+			}*/
 		}
 
 		try (DirectoryStream<Path> ds = Files.newDirectoryStream(repositoryDirectory.toPath(), "**.{gradle,gradle.kts}"))
