@@ -451,7 +451,7 @@ public class Plugin implements Closeable
 				public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException
 				{
 					String zipPath = repositoryDirectory.toPath().relativize(path).toString().replace('\\', '/');
-					boolean required = CORE_SOURCE_TEST.matcher(zipPath).matches();
+					boolean required = CORE_SOURCE_TEST.matcher(zipPath).find();
 					(required ? core : extras).add(new Entry(path, zipPath, path.toFile().length()));
 					return FileVisitResult.CONTINUE;
 				}
