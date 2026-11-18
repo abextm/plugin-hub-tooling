@@ -24,9 +24,14 @@
  */
 repositories {
 	maven {
-		url = "https://repo.runelite.net"
+		url = 'https://repo.runelite.net'
+		content {
+			includeGroupByRegex("net\\.runelite.*")
+		}
 	}
-	mavenCentral()
+	maven {
+		url = 'https://mv.abex.sh/'
+	}
 }
 
 configurations {

@@ -3,14 +3,15 @@ plugins {
 }
 
 repositories {
-	mavenLocal()
 	maven {
 		url = 'https://repo.runelite.net'
 		content {
 			includeGroupByRegex("net\\.runelite.*")
 		}
 	}
-	mavenCentral()
+	maven {
+		url = 'https://mv.abex.sh/'
+	}
 }
 
 dependencies {
